@@ -213,7 +213,7 @@ class GemmaAttention(nn.Module):
             self,
             hidden_states: torch.Tensor,
             attention_mask: Optional[torch.Tensor]=None,
-            postion_ids: Optional[torch.LongTensor]=None,
+            position_ids: Optional[torch.LongTensor]=None,
             kv_cache: Optional[KVCache]=None,
             **kwargs,
     ) -> Tuple[torch.Tensor, Optional[torch.Tensor], Optional[Tuple[torch.Tensor]]]:
@@ -226,8 +226,7 @@ class GemmaAttention(nn.Module):
         query_state = query_state.view(batch_size, q_len, self.num_heads, self.head_dim).transpose(1, 2)
         key_states = key_states.view(batch_size, q_len, self.num_key_value_heads, self.head_dim).transpose(1, 2)
         value_states = value_states.view(batch_size, q_len, self.num_key_value_heads, self.head_dim).transpose(1, 2)
-        print(postion_ids)
-        cos, sin = self.rotery_emb(value_states, postion_ids, seq_len=None)
+        cos, sin = self.rotery_emb(value_states, position_ids, seq_len=None)
         query_state, key_states = apply_rotary_pos_emb(query_state, key_states, cos, sin)
 
         if kv_cache is not None:
@@ -442,7 +441,7 @@ class PaliGemmaForConditionalGeneration(nn.Module):
         ### POSITIONAL ENCODING ###
         if kv_cache is not None and kv_cache.num_items() > 0:
             # Prefilling phase, add position ids [0, 1, ..., N] where N is equal to num of images patches + prompt length
-            position_ids = attention_mask.cumsum(-1)[:, -12]
+            position_ids = attention_mask.cumsum(-1)[:, -1]
             if position_ids.dim() == 1:
                 position_ids = position_ids.unsqueeze(0)
         else:
