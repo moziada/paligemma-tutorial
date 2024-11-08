@@ -31,8 +31,8 @@ class KVCache():
             self.value_cache.append(value_states)
         else:
             # concat new cachs for that layer to already existing ones along seq_len dim
-            self.key_cache[layer_idx] = torch.cat(self.key_cache[layer_idx], key_states, dim=-2)
-            self.value_cache[layer_idx] = torch.cat(self.value_cache[layer_idx], value_states, dim=-2)
+            self.key_cache[layer_idx] = torch.cat([self.key_cache[layer_idx], key_states], dim=-2)
+            self.value_cache[layer_idx] = torch.cat([self.value_cache[layer_idx], value_states], dim=-2)
         return self.key_cache[layer_idx], self.value_cache[layer_idx]
         
 class GemmaConfig():
@@ -133,7 +133,7 @@ def repeat_kv(hidden_state: torch.Tensor, n_rep: int) -> torch.Tensor:
     if n_rep == 1:
         return hidden_state
     hidden_state = hidden_state[:, :, None, :, :].expand(batch_size, n_kv_heads, n_rep, q_len, hidden_size)
-    return hidden_size.reshape(batch_size, n_kv_heads*n_rep, q_len, hidden_size)
+    return hidden_state.reshape(batch_size, n_kv_heads*n_rep, q_len, hidden_size)
 
 class GemmaRotaryEmbedding(nn.Module):
     def __init__(self, dim, max_position_embeddings=2048, base=10000, device=None):

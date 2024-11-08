@@ -4,7 +4,6 @@ from PIL import Image
 from processing_paligemma import PaliGemmaProcessor
 from utils import load_hf_model
 from modeling_gemma import PaliGemmaForConditionalGeneration, KVCache
-import numpy as np
 
 def move_inputs_to_device(model_inputs: dict, device: str):
     model_inputs = {k: v.to(device) for k, v in model_inputs.items()}
@@ -67,7 +66,7 @@ def test_inference(
             next_token_logits = torch.softmax(next_token_logits / temprature, dim=-1)
             next_token = _sample_top_p(next_token_logits, top_p)
         else:
-            next_token = np.argmax(next_token_logits, dim=-1, keepdims=True)
+            next_token = torch.argmax(next_token_logits, dim=-1, keepdims=True)
         assert next_token.size() == (1, 1)
         next_token = next_token.squeeze(0)  # remove batch dim
         generated_tokens.append(next_token)
