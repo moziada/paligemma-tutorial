@@ -201,9 +201,9 @@ class GemmaAttention(nn.Module):
         self.q_proj = nn.Linear(self.hidden_size, self.num_heads * self.head_dim, bias=config.attention_bias)
         self.k_proj = nn.Linear(self.hidden_size, self.num_key_value_heads * self.head_dim, bias=config.attention_bias)
         self.v_proj = nn.Linear(self.hidden_size, self.num_key_value_heads * self.head_dim, bias=config.attention_bias)
-        self.out_proj = nn.Linear(self.num_heads * self.head_dim, self.hidden_size, bias=config.attention_bias)
+        self.o_proj = nn.Linear(self.num_heads * self.head_dim, self.hidden_size, bias=config.attention_bias)
 
-        self.rotery_emb = GemmaRotaryEmbedding(
+        self.rotary_emb = GemmaRotaryEmbedding(
             self.head_dim,
             max_position_embeddings=self.max_position_embeddings,
             base=self.rope_theta
@@ -226,7 +226,7 @@ class GemmaAttention(nn.Module):
         query_state = query_state.view(batch_size, q_len, self.num_heads, self.head_dim).transpose(1, 2)
         key_states = key_states.view(batch_size, q_len, self.num_key_value_heads, self.head_dim).transpose(1, 2)
         value_states = value_states.view(batch_size, q_len, self.num_key_value_heads, self.head_dim).transpose(1, 2)
-        cos, sin = self.rotery_emb(value_states, position_ids, seq_len=None)
+        cos, sin = self.rotary_emb(value_states, position_ids, seq_len=None)
         query_state, key_states = apply_rotary_pos_emb(query_state, key_states, cos, sin)
 
         if kv_cache is not None:
@@ -255,7 +255,7 @@ class GemmaAttention(nn.Module):
         attn_output = attn_output.view(batch_size, q_len, -1)   # concat heads
 
         # Mix the independent heads representation
-        attn_output = self.out_proj(attn_output)
+        attn_output = self.o_proj(attn_output)
         return attn_output, attn_weights
 
 class GemmaDecoderLayer(nn.Module):
