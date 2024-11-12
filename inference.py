@@ -122,12 +122,12 @@ def main(
 
 if __name__=="__main__":
     MODEL_PATH = "./paligemma-3b-pt-224"
-    PROMPT = "this is an image of"
-    IMAGE_FILE_PATH = "test_images/34d5b5a3fbaa4b3b5d9487bf924b0145.jpg"
-    MAX_TOKENS_TO_GENERATE = 100
-    TEMPERATURE = 0.8
-    TOP_P = 0.9
-    DO_SAMPLE = False
+    PROMPT = "The boy in the image is "
+    IMAGE_FILE_PATH = "test_images/Faris_odeh03a.jpg"
+    MAX_TOKENS_TO_GENERATE = 50
+    TEMPERATURE = 0.1
+    TOP_P = 0.8
+    DO_SAMPLE = True
     ONLY_CPU = True
 
     main(
